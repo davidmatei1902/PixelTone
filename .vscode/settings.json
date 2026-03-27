@@ -1,0 +1,6 @@
+{
+    "terminal.integrated.defaultProfile.windows": "Ubuntu-22.04 (WSL)",
+    "python.defaultInterpreterPath": ".venv/bin/python",
+    "python.terminal.activateEnvInSelectedTerminal": true,
+    "python.terminal.clearBeforeExecute": true
+}
