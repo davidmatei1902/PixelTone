@@ -1,0 +1,16 @@
+# Environments
+.venv/
+venv/
+ENV/
+env/
+
+# IDE Settings
+.vscode/
+.idea/
+
+# Python Bytecode
+__pycache__/
+*.pyc
+
+# OS files
+.DS_Store
