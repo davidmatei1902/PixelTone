@@ -3,7 +3,7 @@ import sys
 def main():
     print("Hello World!")
     x = []
-    n = 50  
+    n = 50
     for i in range(n + 1):
         if i % 2 == 0:
             x.append(i)
