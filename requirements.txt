@@ -1,0 +1,13 @@
+# --- IMAGE PROCESSING & COMPUTER VISION ---
+# Used for loading, resizing, and grayscale conversion of the primitive shapes.
+opencv-python
+matplotlib
+
+# --- ARTIFICIAL INTELLIGENCE & NUMERICAL COMPUTING ---
+# K-Means clustering for visual simplification and matrix operations.
+scikit-learn
+numpy
+
+# --- AUDIO SYNTHESIS & SIGNAL PROCESSING ---
+# Used for wave generation and exporting the final sonified output to .wav.
+scipy
