@@ -28,7 +28,23 @@ PixelTone follows a strict coordinate-to-audio mapping system:
 * **X-Axis (Width) $\rightarrow$ Time:** The image is scanned sequentially from left to right.
 * **Y-Axis (Height) $\rightarrow$ Frequency (Pitch):** Pixels at the top generate **High Pitches**, while pixels at the bottom generate **Low Pitches**.
 * **Brightness (K-Clusters) $\rightarrow$ Amplitude (Volume):** Higher cluster intensity directly correlates to **Higher Volume (Gain)**.
+
 ---
+
+## Application Modes
+PixelTone features a versatile graphical interface allowing users to interact with visual data through three distinct modes:
+
+### 1. Global Scan Mode (The Soundscape)
+* **Function:** Automatically scans the entire image from left to right over a set duration (e.g., 1 second).
+* **Use Case:** Provides an instant, holistic auditory representation of the scene, allowing the user to grasp the general context and large structures through a complex polyphonic soundscape.
+
+### 2. Tactile-Audio Explorer (WASD Mode) (**Work In Progress**)
+* **Function:** Transforms the user from a passive listener into an active explorer. Using directional keys (WASD), the user controls a "sonic cursor", hearing only the frequency and amplitude of the specific location they are "touching".
+* **Use Case:** Designed as an accessibility and educational tool (e.g., for the visually impaired) to manually trace outlines, understand data charts, and pinpoint precise structural details.
+
+### 3. Sentinel Mode (AI Target Detection) (**Conceptual**)
+* **Function:** Integrates deep learning models to actively search for specific target objects or visual anomalies within the image.
+* **Use Case:** While scanning globally, if the system's scanline hits a pre-identified target, the audio halts, an auditory alarm is triggered at the target's specific pitch, and a bounding box highlights the area. Might be useful for **hands-free monitoring**.
 
 ## Setup
 1. Create virtual environment (only once):
