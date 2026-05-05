@@ -37,7 +37,7 @@ PixelTone features a versatile graphical interface allowing users to interact wi
 ### 1. Global Scan Mode (The Soundscape)
 * **Function:** Automatically scans the entire image from left to right over a set duration (e.g., 1 second).
 * **Use Case:** Provides an instant, holistic auditory representation of the scene, allowing the user to grasp the general context and large structures through a complex polyphonic soundscape.
-
+v
 ### 2. Tactile-Audio Explorer (WASD Mode) (**Work In Progress**)
 * **Function:** Transforms the user from a passive listener into an active explorer. Using directional keys (WASD), the user controls a "sonic cursor", hearing only the frequency and amplitude of the specific location they are "touching".
 * **Use Case:** Designed as an accessibility and educational tool (e.g., for the visually impaired) to manually trace outlines, understand data charts, and pinpoint precise structural details.
@@ -54,7 +54,7 @@ PixelTone features a versatile graphical interface allowing users to interact wi
 
 2. Activate environment:
 ```python
-   source .venv/vbin/activate
+   source .venv/bin/activate
 ```
 
 3. Install dependencies:

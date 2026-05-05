@@ -11,3 +11,11 @@ numpy
 # --- AUDIO SYNTHESIS & SIGNAL PROCESSING ---
 # Used for wave generation and exporting the final sonified output to .wav.
 scipy
+
+# --- GUI & REAL-TIME AUDIO ---
+# modern UI framework based on tkinter
+customtkinter
+# image manipulation for the gui
+Pillow
+# real-time audio playback (crucial for wasd mode)
+sounddevice

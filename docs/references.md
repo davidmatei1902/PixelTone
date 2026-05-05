@@ -26,5 +26,5 @@
 
 ## Main Documentation 
 
-- https://docs.python.org/3/library/tkinter.html
-    -  Tkinter - Useful for GUI
+- https://customtkinter.tomschimansky.com/
+    -  CustomTkinter - Useful for GUI
