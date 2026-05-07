@@ -3,6 +3,7 @@ import numpy as np
 from scipy.io import wavfile
 import os
 import sounddevice as sd
+import threading
 
 class AudioEngine:
     def __init__(self):
@@ -22,7 +23,7 @@ class AudioEngine:
             return
 
         # resize for consistent processing speed
-        # image = cv2.resize(image, (50, 50))
+        image = cv2.resize(image, (50, 50))
 
         total_scan_duration = 7.0  
         samples_per_col = int(self.sample_rate * (total_scan_duration / image.shape[1]))
@@ -80,7 +81,6 @@ class AudioEngine:
     # for WASD pixel-level feedback
     def play_pixel_tone(self, brightness, y_pos, height):
         # map Y position to frequency (logarithmic)
-        # using the same logic as the global scan for consistency
         freqs = np.geomspace(2000, 200, height)
         selected_freq = freqs[y_pos]
         
@@ -96,7 +96,21 @@ class AudioEngine:
             tone[-fade:] *= np.linspace(1, 0, fade)
             
             audio_final = (tone * self.sound_ceiling).astype(np.int16)
-            sd.play(audio_final, self.sample_rate)
+            
+            # play sound in a separate thread to prevent gui lag
+            def play_async():
+                try:
+                    sd.stop()
+                    sd.play(audio_final, self.sample_rate)
+                except Exception:
+                    pass
+            
+            threading.Thread(target=play_async, daemon=True).start()
         else:
-            # play a very low "empty" click or silence if it's black
-            pass
+            # play a very low empty click or silence if it is black
+            def stop_async():
+                try:
+                    sd.stop()
+                except Exception:
+                    pass
+            threading.Thread(target=stop_async, daemon=True).start()

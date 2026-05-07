@@ -46,15 +46,26 @@ PixelTone features a versatile graphical interface allowing users to interact wi
 * **Function:** Integrates deep learning models to actively search for specific target objects or visual anomalies within the image.
 * **Use Case:** While scanning globally, if the system's scanline hits a pre-identified target, the audio halts, an auditory alarm is triggered at the target's specific pitch, and a bounding box highlights the area. Might be useful for **hands-free monitoring**.
 
+## Technical Challenges & Optimizations
+
+* **WSL Audio Constraints:** Running the `sounddevice` library inside Ubuntu WSL caused fatal `PortAudio` errors due to lack of direct hardware access to the host's sound card. 
+  **Solution:** Ported the execution environment to a native Windows `venv` for direct driver access, while maintaining a dual-terminal workflow for Git.
+
+* **Visual Rendering Lag:** Initially, drawing the red cursor required copying and downscaling the full-resolution image on every keystroke, causing massive UI freezing. 
+  **Solution:** Pre-scaled the visual output to the exact GUI size (400x400) upon loading. The audio logic still runs on the raw image matrix, but the visual cursor now uses a fast coordinate mapping system, eliminating render lag.
+
+* **Audio-GUI Thread Blocking:** Rapid WASD navigation queued too many simultaneous audio streams, which locked the main CustomTkinter thread and dropped FPS. 
+  **Solution:** Decoupled audio from the GUI using **Asynchronous Multithreading**. Audio calls are now sent to a background thread (`threading`), and strict buffer management (`sd.stop()`) ensures only one tone plays at a time. Result: Zero input lag.
+
 ## Setup
 1. Create virtual environment (only once):
 ```python
-   python3 -m venv .venv
+   python3 -m venv venv
 ```
 
 2. Activate environment:
 ```python
-   source .venv/bin/activate
+   venv\Scripts\activate
 ```
 
 3. Install dependencies:
