@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 from scipy.io import wavfile
 import os
+import sounddevice as sd
 
 class AudioEngine:
     def __init__(self):
@@ -21,9 +22,9 @@ class AudioEngine:
             return
 
         # resize for consistent processing speed
-        image = cv2.resize(image, (50, 50))
+        # image = cv2.resize(image, (50, 50))
 
-        total_scan_duration = 1.0  
+        total_scan_duration = 7.0  
         samples_per_col = int(self.sample_rate * (total_scan_duration / image.shape[1]))
 
         # logarithmic frequency mapping
@@ -75,3 +76,27 @@ class AudioEngine:
         wavfile.write(output_filename, self.sample_rate, audio_final)
 
         print(f"saved crisp soundscape: {output_filename}")
+    
+    # for WASD pixel-level feedback
+    def play_pixel_tone(self, brightness, y_pos, height):
+        # map Y position to frequency (logarithmic)
+        # using the same logic as the global scan for consistency
+        freqs = np.geomspace(2000, 200, height)
+        selected_freq = freqs[y_pos]
+        
+        duration = 0.1  # 100ms for a quick responsive beep
+        t = np.linspace(0, duration, int(self.sample_rate * duration), endpoint=False)
+        
+        # sound is louder if the pixel is brighter
+        if brightness > 0.05:
+            tone = brightness * np.sin(2 * np.pi * selected_freq * t)
+            # apply a very fast fade to avoid clicks
+            fade = int(len(t) * 0.1)
+            tone[:fade] *= np.linspace(0, 1, fade)
+            tone[-fade:] *= np.linspace(1, 0, fade)
+            
+            audio_final = (tone * self.sound_ceiling).astype(np.int16)
+            sd.play(audio_final, self.sample_rate)
+        else:
+            # play a very low "empty" click or silence if it's black
+            pass

@@ -1,6 +1,8 @@
 import customtkinter as ctk
-from tkinter import filedialog
+from tkinter import filedialog, messagebox
 from PIL import Image
+import cv2
+import os
 from engine_audio import AudioEngine
 
 # setup global appearance
@@ -14,8 +16,12 @@ class PixelToneApp(ctk.CTk):
         # init the audio engine
         self.audio_engine = AudioEngine()
         
-        # variable to store the currently loaded image path
+        # variables for image and mode state
         self.current_image_path = None
+        self.wasd_active = False
+        self.cursor_x = 0
+        self.cursor_y = 0
+        self.img_data = None # stores the grayscale matrix
 
         # configure main window
         self.title("PixelTone - Sensory Substitution")
@@ -38,7 +44,7 @@ class PixelToneApp(ctk.CTk):
         self.btn_scan = ctk.CTkButton(self.sidebar, text="1. Global Scan", command=self.run_global_scan)
         self.btn_scan.grid(row=1, column=0, padx=20, pady=10)
 
-        # mode 2 button
+        # mode 2 button (wasd toggle)
         self.btn_wasd = ctk.CTkButton(self.sidebar, text="2. WASD Explorer", command=self.run_wasd_explorer)
         self.btn_wasd.grid(row=2, column=0, padx=20, pady=10)
 
@@ -46,7 +52,7 @@ class PixelToneApp(ctk.CTk):
         self.btn_sentinel = ctk.CTkButton(self.sidebar, text="3. Sentinel Mode", fg_color="#8B0000", hover_color="#FF0000", command=self.run_sentinel)
         self.btn_sentinel.grid(row=3, column=0, padx=20, pady=10)
 
-        # load image button connected to load image function
+        # load image button
         self.btn_load = ctk.CTkButton(self.sidebar, text="Load Image...", fg_color="transparent", border_width=2, command=self.load_image)
         self.btn_load.grid(row=6, column=0, padx=20, pady=20, sticky="s")
 
@@ -64,9 +70,7 @@ class PixelToneApp(ctk.CTk):
         self.bind("<s>", self.move_down)
         self.bind("<d>", self.move_right)
 
-    # file explorer dialog and image rendering
     def load_image(self):
-        # open file dialog to select image
         file_path = filedialog.askopenfilename(
             title="select an image",
             filetypes=[("image files", "*.png *.jpg *.jpeg")]
@@ -74,41 +78,69 @@ class PixelToneApp(ctk.CTk):
         
         if file_path:
             self.current_image_path = file_path
-            print(f"loaded image: {self.current_image_path}")
+            # load image for cv2 processing (grayscale)
+            self.img_data = cv2.imread(self.current_image_path, cv2.IMREAD_GRAYSCALE)
             
-            # load and display image on gui
+            # reset cursor to image center
+            if self.img_data is not None:
+                self.cursor_y, self.cursor_x = self.img_data.shape[0] // 2, self.img_data.shape[1] // 2
+            
+            # display in gui
             pil_image = Image.open(self.current_image_path)
-            
-            # create a customtkinter image object
             ctk_img = ctk.CTkImage(light_image=pil_image, dark_image=pil_image, size=(400, 400))
-            
-            # update the label with the image and remove the placeholder text
             self.img_placeholder.configure(image=ctk_img, text="")
+            print(f"loaded image: {self.current_image_path} | res: {self.img_data.shape}")
 
-    # functions for mode buttons
     def run_global_scan(self):
         if self.current_image_path:
-            print(f"starting global soundscape for {self.current_image_path}...")
-            # trigger engine with the dynamically loaded image
             self.audio_engine.generate_soundscape(self.current_image_path)
+            messagebox.showinfo("success", "global scan complete!")
         else:
-            print("warning: please load an image first!")
+            messagebox.showwarning("warning", "load an image first!")
 
     def run_wasd_explorer(self):
-        print("wasd mode active. cursor ready.")
+        if self.img_data is None:
+            messagebox.showwarning("warning", "load an image first!")
+            return
+        
+        self.wasd_active = not self.wasd_active
+        color = "green" if self.wasd_active else ["#3B8ED0", "#1F6AA5"] # default ctk blue
+        self.btn_wasd.configure(fg_color=color)
+        print(f"wasd mode: {'ON' if self.wasd_active else 'OFF'}")
 
-    def run_sentinel(self):
-        print("sentinel armed. ai target detection running...")
+    def process_pixel_step(self):
+        """helper to get brightness and trigger sound engine"""
+        if self.wasd_active and self.img_data is not None:
+            # get pixel brightness (0-1)
+            brightness = self.img_data[self.cursor_y, self.cursor_x] / 255.0
+            # send to engine (brightness, current_y, total_height)
+            self.audio_engine.play_pixel_tone(brightness, self.cursor_y, self.img_data.shape[0])
+            # print for debugging
+            print(f"cursor at Y:{self.cursor_y} X:{self.cursor_x} | brightness: {brightness:.2f}")
 
-    # key press handlers
     def move_up(self, event):
-        print("cursor moved up")
+        if self.wasd_active and self.img_data is not None:
+            if self.cursor_y > 10:
+                self.cursor_y -= 10
+                self.process_pixel_step()
 
     def move_down(self, event):
-        print("cursor moved down")
+        if self.wasd_active and self.img_data is not None:
+            if self.cursor_y < self.img_data.shape[0] - 11:
+                self.cursor_y += 10
+                self.process_pixel_step()
 
     def move_left(self, event):
-        print("cursor moved left")
+        if self.wasd_active and self.img_data is not None:
+            if self.cursor_x > 10:
+                self.cursor_x -= 10
+                self.process_pixel_step()
 
     def move_right(self, event):
-        print("cursor moved right")
+        if self.wasd_active and self.img_data is not None:
+            if self.cursor_x < self.img_data.shape[1] - 11:
+                self.cursor_x += 10
+                self.process_pixel_step()
+
+    def run_sentinel(self):
+        print("sentinel mode not implemented yet.")
