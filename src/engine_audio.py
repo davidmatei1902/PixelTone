@@ -78,9 +78,9 @@ class AudioEngine:
 
         print(f"saved crisp soundscape: {output_filename}")
     
-    # for WASD pixel-level feedback
+    # for wasd pixel-level feedback
     def play_pixel_tone(self, brightness, y_pos, height):
-        # map Y position to frequency (logarithmic)
+        # map y position to frequency (logarithmic)
         freqs = np.geomspace(2000, 200, height)
         selected_freq = freqs[y_pos]
         
@@ -114,3 +114,26 @@ class AudioEngine:
                 except Exception:
                     pass
             threading.Thread(target=stop_async, daemon=True).start()
+
+    # sound for hitting image boundaries
+    def play_border_notification(self):
+        duration = 0.05 
+        t = np.linspace(0, duration, int(self.sample_rate * duration), endpoint=False)
+        
+        # high pitch 3000hz to distinguish from pixel tones
+        beep = 0.5 * np.sin(2 * np.pi * 3000 * t)
+        
+        fade = int(len(t) * 0.1)
+        beep[:fade] *= np.linspace(0, 1, fade)
+        beep[-fade:] *= np.linspace(1, 0, fade)
+        
+        audio_final = (beep * self.sound_ceiling).astype(np.int16)
+
+        def play_async():
+            try:
+                sd.stop()
+                sd.play(audio_final, self.sample_rate)
+            except Exception:
+                pass
+        
+        threading.Thread(target=play_async, daemon=True).start()
